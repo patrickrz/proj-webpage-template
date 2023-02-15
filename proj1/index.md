@@ -22,7 +22,16 @@
       - [`svg/basic/test7.svg`](#svgbasictest7svg)
       - [What are Barycentric coordinates?](#what-are-barycentric-coordinates)
     - [Part 5: “Pixel sampling” for texture mapping](#part-5-pixel-sampling-for-texture-mapping)
+      - [What is pixel sampling?](#what-is-pixel-sampling)
+      - [Implementation](#implementation)
+        - [Nearest sampling](#nearest-sampling)
+        - [Bilinear sampling](#bilinear-sampling)
+      - [Differences](#differences)
     - [Part 6: “Level sampling” with mipmaps for texture mapping](#part-6-level-sampling-with-mipmaps-for-texture-mapping)
+      - [What is level sampling and how did we implement this?](#what-is-level-sampling-and-how-did-we-implement-this)
+      - [Tradeoffs](#tradeoffs)
+        - [Speed and memory](#speed-and-memory)
+        - [Aliasing](#aliasing)
   - [Section III: Art Competition](#section-iii-art-competition)
     - [Part 7: Draw something interesting](#part-7-draw-something-interesting)
 <!--toc:end-->
@@ -33,21 +42,18 @@
 
 ## Overview
 
-Give a high-level overview of what you implemented in this project. Think about
-what you've built as a whole. Share your thoughts on what interesting things
-you've learned from completing the project.
-
-In this assignment, we implemented a simple rasterizer that covers capabilities including 
-drawing single-color triangles, super-sampling, transforming geometric objects,
-coloring triangles using Barycentric coordinates, and pixel and level sampling.
-Essentially, we've explored the process of converting continuous objects and images into
-discrete formats such as pixels in computer screens. Each of these sampling methods
-have certain drawbacks and benefits in terms of memory, speed, and anti-aliasing power.
-Overall, the project opened our eyes to how sensitive the sampling process is. Very small
-errors/bugs would lead to complete mistakes in the drawing of certain colors in our final results.
-Additionally, we learned about the importance of being accurate about variable types especially
-when converting between integers, floats, and doubles. Even small rounding errors can lead to
-substantial rasterization bugs.
+In this assignment, we implemented a simple rasterizer that covers capabilities
+including drawing single-color triangles, super-sampling, transforming
+geometric objects, coloring triangles using Barycentric coordinates, and pixel
+and level sampling. Essentially, we've explored the process of converting
+continuous objects and images into discrete formats such as pixels in computer
+screens. Each of these sampling methods have certain drawbacks and benefits in
+terms of memory, speed, and anti-aliasing power. Overall, the project opened
+our eyes to how sensitive the sampling process is. Very small errors/bugs would
+lead to complete mistakes in the drawing of certain colors in our final
+results. Additionally, we learned about the importance of being accurate about
+variable types especially when converting between integers, floats, and
+doubles. Even small rounding errors can lead to substantial rasterization bugs.
 
 ## Section I: Rasterization
 
@@ -167,12 +173,15 @@ pixel in the framebuffer.
 ### Part 3: Transforms
 
 ![Screenshot of my_robot](images/task3/my_robot.svg)
-Rotation and translation of both right and left forearms as well as in the left leg were implemented to
-add movement to the cubeman, "animating" it to look like it was dancing. For example, the left
-arm was translated 70 units to the left and 20 units ups and rotated 45 degrees to create the effect 
-that the arm was being bent. The translation was added because the rotation itself was not enough to
-account for bending of the cubeman's limbs, causing the forearm shape to cover other parts of the cubeman's body.
-The colors on the figure were also added to create a "shading" effect, using Berkeley colors. 
+
+Rotation and translation of both right and left forearms as well as in the left
+leg were implemented to add movement to the cubeman, "animating" it to look
+like it was dancing. For example, the left arm was translated 70 units to the
+left and 20 units ups and rotated 45 degrees to create the effect that the arm
+was being bent. The translation was added because the rotation itself was not
+enough to account for bending of the cubeman's limbs, causing the forearm shape
+to cover other parts of the cubeman's body. The colors on the figure were also
+added to create a "shading" effect, using Berkeley colors.
 
 ## Section II: Sampling
 
@@ -222,39 +231,135 @@ We generated the triangle with `svg/task4/triangle.svg`:
 
 ### Part 5: “Pixel sampling” for texture mapping
 
+#### What is pixel sampling?
+
+Pixel sampling is the process of identifying values (colors, texture samples) from
+the vicinity of a given point. For the case of this task, we are sampling from
+the texture space based on values given in screen space.
+
+#### Implementation
+
+We first implemented `RasterizerImp::rasterize_textured_triangle()` in
+`rasterizer.cpp` to do something extremely similar to
+`RasterizerImp::rasterize_interpolated_color_triangle()`, except instead of
+using barycentric coordinates to linearly interpolate the colors assigned to
+each vertex, it does so with the texture space $(u, v)$ coordinates of each
+vertex. This results in the texture space $(u, v)$ coordinate for the current
+sample point, which we then pass into `Texture::sample_nearest()` or
+`Texture::sample_bilinear()` depending on the value of `psm`. Each texture
+sampling function returns the `Color` of pixel in the texture mipmap level,
+which is just the zeroth level for Task 5.
+
+##### Nearest sampling
+
+For nearest sampling, the sample point from the texture space is identified by
+taking the floor of the `u` and `v` coordinates in texture space and finding
+the corresponding texel in the mipmap level `level`. Flooring _both_ of these
+coordinates will return the "nearest" coordinate sample (the texel in which
+`$(u, v)` lies) **and** ensures we don't miss out the pixels near the origin.
+
+##### Bilinear sampling
+
+Bilinear sampling is implemented by taking the _four_ nearest sample
+locations and then performing a total of three linear interpretations
+to get the final sample value.
+
+To implement this, the corresponding texel coordinate is found, following
+similar steps to the one's described above in nearest sampling. Then, similar
+to the illustration in Lecture 5, Slide 72, a "middle coordinate" is found by
+rounding $(u, v)$ to get the nearest texel coordinate. This places us in the
+middle of four coordinates and lets us perform bilinear interpretation between
+the four sample points $(round(u) {\displaystyle \pm} .5, round(v)
+{\displaystyle \pm} .5)$. We handle edge cases here by detecting when the
+initially found coordinate is on the edge of the image. We sample the "middle"
+of these four coordinates. Two helper `lerp`s are performed on the top two
+coordinates and bottom two coordinates respectively and a final vertical `lerp`
+is performed utilizing the results of the previous two `lerp`s, thus completing
+the bilinear sampling.
+
+#### Differences
+
+| Sampling Rate <br/> (samples/pixel) | Sampling Method | Images                                                                        |
+|---------------------------------|-----------------|-----------------------------------------------------------------------------------|
+| 1                               | nearest         | ![Nearest sampling with sample rate = 1](images/task5/task5_nearest_1spp.png)     |
+| 1                               | bilinear        | ![Bilinear sampling with sample rate = 1](images/task5/task5_bilinear_1spp.png)   |
+| 16                              | nearest         | ![Nearest sampling with sample rate = 16](images/task5/task5_nearest_16spp.png)   |
+| 16                              | bilinear        | ![Bilinear sampling with sample rate = 16](images/task5/task5_bilinear_16spp.png) |
+
+With 1 sample/second, there is a noticeable difference between different
+sampling methods. The bilinear, 1 sample/second image has fewer jaggies and the
+shape is almost discernible. For the results obtained from sampling with 16
+samples/second, the image sampled with nearest the gap in quality is less
+noticeable given that super sampling occurs, but the image obtained with
+bilinear sampling is has far less aliasing.
+
+The explanation behind this is simply that interpolating more samples will
+produce a higher quality image rather than just relying on one, "nearest"
+sample. This is more evident with smaller, higher frequency parts of the image,
+hence why we chose the small (R) in the Berkeley seal. Going further, the
+reasoning behind this is when there are parts of the image that are rapidly
+changing (such as at the edge of an object), taking one, nearest sample
+typically not capture edge details as well as if you take higher samples and/or
+interpolate, which is why we can expect the highest quality image with bilinear
+sampling at 16 samples/second.
+
 ### Part 6: “Level sampling” with mipmaps for texture mapping
+
 #### What is level sampling and how did we implement this?
-MIP maps are used as an optimization and, conceptually, is a collection
-of pre-computed, filtered versions of the texture, with each level
-representing a select granularity of filtering. Level sampling has an additional
-step of calculating the "level of interest," which is either specified
-or calculated using the equations presented in lecture. Then, a series of `lerp()`s are
-recursively calculated and the result is derived.
+
+Mipmaps are used as an optimization and, conceptually, are a collection of
+pre-computed, filtered versions of the texture, with each level representing a
+select granularity of filtering. Specifically, the 0th level mipmap is the full
+resolution image/texture. As the level increases, the resolution of the image
+is decreased by downsampling by a factor of 2 in each dimension. By only
+storing an extra third of memory for each image/texture, mipmaps help antialias
+when texture mapping by using level sampling. Level sampling involves
+calculating the appropriate mipmap level to use based on distance. The greater
+the distance, the greater the mipmap level should be so that when sampling the
+texture, the smaller mipmap image won't be undersampled when rasterized to a
+small part of the screen.
+
+We implemented level sampling by first making sure to call `Texture::sample()`
+in `RasterizerImp::rasterize_textured_triangle()` and passing in a
+`SampleParams` struct containing the $(u, v)$ barycentric coordinates of $(x,
+y)$, $(x + 1, y)$, and $(x, y + 1)$. Then, `sample()` handles the level sample
+method in `psm` as follows. When `lsm == L_ZERO`, we sample with `level = 0`.
+When `psm == L_NEAREST`, we calculate the level with `get_level()` and round it
+to get the nearest level. And when `lsm == L_LINEAR`, we calculate the level
+as a continuous value, `floor` it to get the adjacent level below, and `ceil`
+it to get the level above. With these two levels, we sample the texture twice
+and linear interpolate between the two colors for the final color of the sample.
 
 #### Tradeoffs
-##### Speed and memory:
-With level sampling or mip-mapping, we have generally improved speed and memory usage because the full 
-quality of a texture need not be fully loaded to render every object on a scene. Objects in the "background" don't need the full quality of the texture because they require
-less detail to be rendered without too much aliasing and so "smaller" versions of a texture for distant objects 
-minimizes the need to load a full-size version of a texture. On the other hand pixel sampling requires
-loading a full texel each time. Additionally, because of  the design of mip maps, there's less texture data that needs to be store.
-Increasing the number of samples will increases the amount of computation quadratically
-and this is reflected in both speed and memory. 
 
-##### Aliasing:
-The calculation of the "distance" of two points in texture space and the corresponding mip-map level 
-in level sampling reduces aliasing by smoothing out jaggies from the image. Selectively choosing, say,
-a lower-frequency versus higher-frequency mip-map level will remove aliasing/smooth out our jaggies. 
-Of course, increasing the number of samples will generally decrease the amount of aliasing, but at 
-the cost of speed and memory as mentioned above.
+##### Speed and memory
 
-| combination                 | image                                                              |
+With level sampling or mipmapping, we have generally improved speed and memory
+usage because the full quality of a texture need not be fully loaded to render
+every object on a scene. Objects in the "background" don't need the full
+quality of the texture because they require less detail to be rendered without
+too much aliasing and so "smaller" versions of a texture for distant objects
+minimizes the need to load a full-size version of a texture. On the other hand
+pixel sampling requires loading a full texel each time. Additionally, because
+of  the design of mipmaps, there's less texture data that needs to be store.
+Increasing the number of samples will increases the amount of computation
+quadratically and this is reflected in both speed and memory.
+
+##### Aliasing
+
+The calculation of the "distance" of two points in texture space and the
+corresponding mipmap level in level sampling reduces aliasing by smoothing out
+jaggies from the image. Selectively choosing, say, a lower-frequency versus
+higher-frequency mipmap level will remove aliasing/smooth out our jaggies. Of
+course, increasing the number of samples will generally decrease the amount of
+aliasing, but at the cost of speed and memory as mentioned above.
+
+| Combination                 | Image                                                              |
 |-----------------------------|--------------------------------------------------------------------|
-| `L_ZERO` and `P_NEAREST`    | ![L_ZERO_P_NEAREST](images/task6/task6_L_zero_P_nearest.png)       |
+| `L_ZERO` AND `P_NEAREST`    | ![L_ZERO_P_NEAREST](images/task6/task6_L_zero_P_nearest.png)       |
 | `L_ZERO` AND `P_LINEAR`     | ![L_ZERO_P_LINEAR](images/task6/task6_L_zero_P_linear.png)         |
 | `L_NEAREST` AND `P_NEAREST` | ![L_NEAREST_P_NEAREST](images/task6/task6_L_nearest_P_nearest.png) |
-| `L_NEAREST` AND `P_LINEAR`   | ![L_NEAREST_P_LINEAR](images/task6/task6_L_nearest_P_linear.png)   |
-
+| `L_NEAREST` AND `P_LINEAR`  | ![L_NEAREST_P_LINEAR](images/task6/task6_L_nearest_P_linear.png)   |
 
 ## Section III: Art Competition
 
