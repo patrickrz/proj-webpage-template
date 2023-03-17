@@ -492,7 +492,7 @@ You will probably want to use the instructional machines for the above renders i
         <figcaption>Only direct illumination (CBspheres_lambertian.dae)</figcaption>
       </td>
       <td>
-        <img src="images/part4/spheres_only_indirect_illumination.png" align="middle" width="400px"/>
+        <img src="images/part4/spheres_only_indirect_illumination_v2.png" align="middle" width="400px"/>
         <figcaption>Only indirect illumination (CBspheres_lambertian.dae)</figcaption>
       </td>
     </tr>
@@ -527,27 +527,27 @@ You will probably want to use the instructional machines for the above renders i
   <table style="width:100%">
     <tr align="center">
       <td>
-        <img src="images/part4/CBbunny_m_0.png" align="middle" width="400px"/>
+        <img src="images/part4/CBbunny_m_0_v2.png" align="middle" width="400px"/>
         <figcaption>max_ray_depth = 0 (CBbunny.dae)</figcaption>
       </td>
       <td>
-        <img src="images/part4/CBbunny_m_1.png" align="middle" width="400px"/>
+        <img src="images/part4/CBbunny_m_1_v2.png" align="middle" width="400px"/>
         <figcaption>max_ray_depth = 1 (CBbunny.dae)</figcaption>
       </td>
     </tr>
     <tr align="center">
       <td>
-        <img src="images/part4/CBbunny_m_2.png" align="middle" width="400px"/>
+        <img src="images/part4/CBbunny_m_2_v2.png" align="middle" width="400px"/>
         <figcaption>max_ray_depth = 2 (CBbunny.dae)</figcaption>
       </td>
       <td>
-        <img src="images/part4/CBbunny_m_3.png" align="middle" width="400px"/>
+        <img src="images/part4/CBbunny_m_3_v2.png" align="middle" width="400px"/>
         <figcaption>max_ray_depth = 3 (CBbunny.dae)</figcaption>
       </td>
     </tr>
     <tr align="center">
       <td>
-        <img src="images/part4/CBbunny_m_100.png" align="middle" width="400px"/>
+        <img src="images/part4/CBbunny_m_100_v2.png" align="middle" width="400px"/>
         <figcaption>max_ray_depth = 100 (CBbunny.dae)</figcaption>
       </td>
     </tr>
@@ -555,13 +555,14 @@ You will probably want to use the instructional machines for the above renders i
 </div>
 <br>
 <p>
-  These renders were done with no Russian Roulette termination so that the
-  number of recursive bounces would match the <code>max_ray_depth</code>. As
-  the <code>max_ray_depth</code> increases, the more recursive bounces are
-  performed and summed, and the brighter the reflected light becomes. However,
-  as we know there is decay in the reflected light as the number of bounces
-  increases, so at 100 bounces, the image is not that much brighter visually
-  than the image with 3 bounces.
+  When <code>max_ray_depth = 0</code>, we get only zero bounce illuminance.
+  When <code>max_ray_depth = 1</code>, we get zero bounce illumination and one
+  bounce illumination (direct illumination). When <code>max_ray_depth >
+  1</code>, we get indirect illumination. As the <code>max_ray_depth</code>
+  increases, the more recursive bounces are performed and summed, and the
+  brighter the reflected light becomes. However, as we know there is decay in
+  the reflected light as the number of bounces increases, so at 100 bounces,
+  the image is not that much brighter visually than the image with 3 bounces.
 </p>
 <br>
 
