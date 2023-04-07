@@ -1,0 +1,101 @@
+<!--<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">-->
+<!--<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">-->
+<!--<head>-->
+<!--<style>  -->
+<!--    div.padded {  -->
+<!--      padding-top: 0px;  -->
+<!--      padding-right: 100px;  -->
+<!--      padding-bottom: 0.25in;  -->
+<!--      padding-left: 100px;  -->
+<!--    }  -->
+<!--  </style> -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+    <style>
+        body {
+            background-color: white;
+            padding: 100px;
+            width: 1000px;
+            margin: auto;
+            text-align: left;
+            font-weight: 300;
+            font-family: 'Open Sans', sans-serif;
+            color: #121212;
+        }
+        h1, h2, h3, h4 {
+            font-family: 'Source Sans Pro', sans-serif;
+        }
+        kbd {
+            color: #121212;
+        }
+    </style>
+    <title>  Final Project Proposal | CS 184</title>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+</head>
+<body>
+<br />
+<h1 align="middle">Rube Gold-Berk Machine</h1>
+<h2 align="middle">Tymon Thi, Reina Wang, Maggie Yi, Patrick Zhu</h2>
+
+<div class="padded">
+
+
+    <h3 align="middle">Summary</h3>
+
+    <p>
+        We want to create a physics animation, simulating a Rube Goldberg machine involving planks that a ball will interact with as it falls down and “completes the course.” As a stretch goal, we want to open functionality to allow the user to indicate the initial starting position of the ball to be dropped into the machine.
+    </p>
+
+
+
+
+    <h3 align="middle">Problem Description</h3>
+    <p>
+        The main problem is trying to simulate the kinematics of a rolling ball colliding with and rolling down surfaces. From a physics standpoint, we must determine the proper mass of the ball and friction coefficient/angles of the planks in order to create a realistic simulation. From a computer graphics angle, we will need to implement not just the physics above (likely using the <a href="https://byjus.com/physics/kinematics-equations/">four kinematic equations</a>) in addition to implementing collisions with between the ball and course obstacles such as in Project 4. Because each of the planks in a simulation are disparate objects (separated by position), we anticipate a challenge in utilizing data structures that can help us efficiently determine when a ball is colliding/rolling on a surface and when it’s free falling. Additionally, the physical rotational movement of individual point masses on the ball is something we implement as well.
+    </p>
+
+    <h3 align="middle">Goals and Deliverables</h3>
+    <p>
+        <b>
+            What we plan to deliver + how we will measure the quality of the system:
+        </b>
+    </p>
+
+    <p>
+        We plan to deliver an animation video of a ball falling down an obstacle course. It will be a 2D animation, similar to the mobile game “Cut the Rope”, with the ball initially being hung up by a rope and falling down onto the planks and rolling into a final bucket. We will measure the quality of the system by observing how “realistic” the physical simulation is, including: whether or not there are any unintentional merges when two objects collide, whether or not acceleration and velocity are modeled correctly, and whether or not the ball ends up in the location it’s supposed to.
+
+    </p>
+
+    <p>
+        <b>
+            What we hope to deliver:
+        </b>
+    </p>
+
+    <p>
+        Ideally, we hope to deliver an interactive kinematics simulator where the user can customize obstacles and initial states. The user can swipe to cut the initial rope, adjust the angles and locations of each plank, wall, and obstacle, as well as different properties of the ball and other objects (such as elasticity, weight…etc).
+    </p>
+
+    <h3 align="middle">Schedule</h3>
+    <p>
+        <ol>
+            <li>First item</li>
+            <li>Second item</li>
+            <li>Third item</li>
+        </ol>
+    </p>
+
+    <h3 align="middle">Resources</h3>
+    <p>
+    <ul>
+        <li><a href="https://youtu.be/1JpdW-D6c14">Cut the Rope</a></li>
+        <li>Second item</li>
+        <li>Third item</li>
+    </ul>
+    </p>
+</div>
+</body>
+</html>
+
