@@ -1,0 +1,165 @@
+<!--<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">-->
+<!--<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">-->
+<!--<head>-->
+<!--<style>  -->
+<!--    div.padded {  -->
+<!--      padding-top: 0px;  -->
+<!--      padding-right: 100px;  -->
+<!--      padding-bottom: 0.25in;  -->
+<!--      padding-left: 100px;  -->
+<!--    }  -->
+<!--  </style> -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <style>
+    body {
+      background-color: white;
+      padding: 100px;
+      width: 1000px;
+      margin: auto;
+      text-align: left;
+      font-weight: 300;
+      font-family: 'Open Sans', sans-serif;
+      color: #121212;
+    }
+    h1, h2, h3, h4 {
+      font-family: 'Source Sans Pro', sans-serif;
+    }
+    kbd {
+      color: #121212;
+    }
+  </style>
+  <title>  Final Project Proposal | CS 184</title>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  <link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+</head>
+<body>
+<br />
+<h1 align="middle">Rube Gold-Berk Machine</h1>
+<h2 align="middle">Reina Wang, Maggie Yi, Patrick Zhu, Tymon Thi</h2>
+
+<div class="padded">
+
+  <h3 align="middle">Project Overview</h3>
+  <p>
+    For this project, we want to simulate the kinematics of a ball colliding
+    with and rolling down surfaces. 
+  </p>
+
+  <h3 align="middle">What We've Done</h3>
+  <p>
+    <b>Data Structures:</b>
+  </p>
+  <p>
+    We’ve created new classes for the Ball and Plank objects. The Mass struct,
+    which we inherited from discussion, contains a position, last_position (from
+    the last time step), mass (of the object), and whether or not the object is
+    pinned. The Ball class contains a Mass struct to store position information, as
+    well as fields to store the Ball’s mass and radius. The Plank class stores the
+    two endpoints of each plank, as well as a friction coefficient for balls
+    rolling down the plank. 
+  </p>
+  <div align="middle">
+    <table style="width:100%">
+      <tr align="center">
+        <td>
+          <img src="images/ball_h.png" align="middle" width="400px"/>
+          <figcaption>ball.h</figcaption>
+        </td>
+        <td>
+          <img src="images/plank_h.png" align="middle" width="400px"/>
+          <figcaption>plank.h</figcaption>
+        </td>
+      </tr>
+    </table>
+  </div>
+  <br>
+
+  <p>
+    <b>Physics:</b>
+  </p>
+  <p>
+    Our ball moves under a simulateEuler() function, which applies the total
+    external forces on the ball to move the ball to its next position. When
+    free-falling, the ball is acted upon by a downwards gravitational force. To
+    detect a collision between a ball and a plank, we model each plank as a
+    ray, with two endpoints and a direction. We define the equation of the
+    plank as a ray using its endpoints and direction, and the equation of the
+    ball as a circle using the ball’s radius and center position. Setting the
+    two equations equal to each other, we can solve a quadratic equation to
+    figure out whether or not there is an intersection, and where the
+    intersection point is.
+  </p>
+  <p>
+    To simulate the motion of a ball rolling down a plank, we first calculate
+    the total force exerted by the plank on the ball: the normal force exerted
+    on any stationary ball, and an extra reactionary force to the ball’s
+    existing velocity upon collision with the plank. The normal force has
+    magnitude  |gravity| * cos(theta), and points in the same direction as the
+    normal to the plank. The reactionary force is calculated to cancel out the
+    component of velocity perpendicular to the plank, and has the same
+    direction and a magnitude of |velocity| * cos(alpha) * mass / delta_t.
+    Given a new total force exerted on the ball, we calculate a new velocity
+    vector for the ball, and update the ball’s position based on the new
+    velocity.
+  </p>
+  <div align="middle">
+    <table style="width:100%">
+      <tr align="center">
+        <td>
+          <img src="images/physics1.jpg" align="middle" width="400px"/>
+          <figcaption>physics of ball rolling down an incline</figcaption>
+        </td>
+        <td>
+          <img src="images/physics2.jpg" align="middle" width="400px"/>
+          <figcaption>solving for the reactionary force</figcaption>
+        </td>
+      </tr>
+    </table>
+  </div>
+  <br>
+
+  <p>
+    <b>Preliminary Results:</b>
+  </p>
+  <p>
+    As seen in the image below, we have four different planks drawn out in
+    different colors, as well as a ball object. The ball initially lands on the
+    blue plank, rolls down to the green plank, rolls down to the red plank, and
+    comes to rest on the yellow plank. We are able to simulate the free fall,
+    rolling, and plank collision kinematics for this animation.
+  </p>
+  <div align="middle">
+    <img src="images/demo.png" align="middle" width="800px"/>
+  </div>
+  <br>
+
+  <h3 align="middle">Progress</h3>
+  <p>
+    <b>Preliminary Results:</b>
+  </p>
+  <p>
+    <ol>
+      <li><b>Simulate a circular ball rolling down a singular incline horizontal plank</b></li>
+      <li><b>Build an “obstacle” course of horizontal, angled planks and drop a ball through the course</b></li>
+      <li>Add ropes at the end of planks to simulate circular motion + add “portal” so the simulation can repeat</li>
+      <li>Add “game aspects” where user can specify mass, friction of planks, time before cutting of rope after ball is attached in order to get the ball in final goal</li>
+    </ol>
+  </p>
+
+  <p>
+  We’ve completed roughly the first two weeks’ items in our initial work plan.
+  We created several angled planks and a final horizontal plank, and are able
+  to drop a circular ball to roll down the combination of planks. A
+  modification we might make to our initial work plan is to spend more time
+  cleaning up the kinematics to make sure we’re simulating all forces
+  correctly, as well as on the rendering graphics to make our planks and balls
+  look better. Our stretch goal remains to add additional game features and
+  parameters for different objects in the animation. 
+  </p>
+
+</div>
+</body>
+</html>
+
